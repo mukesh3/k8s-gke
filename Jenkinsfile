@@ -8,7 +8,7 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                git url: 'https://your-repo-url.git', branch: 'main'
+                git url: 'https://github.com/mukesh3/k8s-gke.git', branch: 'main'
             }
         }
 
@@ -26,18 +26,21 @@ pipeline {
 
         stage('Terraform Init') {
             steps {
+                sh 'cd gke-tf'
                 sh 'terraform init'
             }
         }
 
         stage('Terraform Validate') {
             steps {
+                sh 'cd gke-tf'
                 sh 'terraform validate'
             }
         }
 
         stage('Terraform Plan') {
             steps {
+                sh 'cd gke-tf'
                 sh 'terraform plan -out=terraform.plan'
             }
         }
@@ -45,12 +48,14 @@ pipeline {
         stage('Terraform Apply') {
             steps {
                 input message: 'Approve Terraform Apply?', ok: 'Apply'
+                sh 'cd gke-tf'
                 sh 'terraform apply terraform.plan'
             }
         }
 
         stage('Clean Up') {
             steps {
+                sh 'cd gke-tf'
                 sh 'rm -f terraform.plan'
             }
         }
