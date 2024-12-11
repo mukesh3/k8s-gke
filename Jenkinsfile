@@ -35,34 +35,40 @@ pipeline {
         }
 
         stage('Terraform Init') {
-            steps {
-                sh 'terraform init'
+            dir(gke-tf){
+              steps {
+                  sh 'terraform init'
+              }
             }
         }
 
         stage('Terraform Validate') {
+            dir(gke-tf){
             steps {
                 sh 'terraform validate'
-            }
+            }}
         }
 
         stage('Terraform Plan') {
+            dir(gke-tf){
             steps {
                 sh 'terraform plan -out=terraform.plan'
-            }
+            }}
         }
 
         stage('Terraform Apply') {
+            dir(gke-tf){
             steps {
                 input message: 'Approve Terraform Apply?', ok: 'Apply'
                 sh 'terraform apply terraform.plan'
-            }
+            }}
         }
 
         stage('Clean Up') {
+            dir(gke-tf){
             steps {
                 sh 'rm -f terraform.plan'
-            }
+            }}
         }
     }
 
