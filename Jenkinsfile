@@ -12,35 +12,42 @@ pipeline {
             }
         }
 
-        #stage('Install Terraform') {
-        #    steps {
-        #        script {
-        #            def terraformInstalled = sh(script: 'terraform --version', returnStatus: true)
-        #            if (terraformInstalled != 0) {
-        #                sh 'curl -sLo /tmp/terraform.zip https://releases.hashicorp.com/terraform/1.0.0/terraform_1.0.0_linux_amd64.zip'
-        #                sh 'unzip /tmp/terraform.zip -d /usr/local/bin/'
-        #            }
-        #        }
-        #    }
-        #}
+        stage('Setup Google Cloud SDK') {
+            steps {
+                script {
+                    // Use the secret file credential
+                    withCredentials([file(credentialsId: 'glcoud_svc-tf-svc', variable: 'GOOGLE_APPLICATION_CREDENTIALS')]) {
+                        // Install Google Cloud SDK if not already installed
+                        def gcloudInstalled = sh(script: 'gcloud version', returnStatus: true)
+                        if (gcloudInstalled != 0) {
+                            sh 'curl https://sdk.cloud.google.com | bash'
+                            sh 'exec -l $SHELL'
+                            sh 'gcloud init'
+                        }
+                        
+                        // Authenticate with Google Cloud
+                        sh 'gcloud auth activate-service-account --key-file=$GOOGLE_APPLICATION_CREDENTIALS'
+                        // Set the project (replace 'your-project-id' with your actual project ID)
+                        sh 'gcloud config set project your-project-id'
+                    }
+                }
+            }
+        }
 
         stage('Terraform Init') {
             steps {
-                sh 'cd gke-tf'
                 sh 'terraform init'
             }
         }
 
         stage('Terraform Validate') {
             steps {
-                sh 'cd gke-tf'
                 sh 'terraform validate'
             }
         }
 
         stage('Terraform Plan') {
             steps {
-                sh 'cd gke-tf'
                 sh 'terraform plan -out=terraform.plan'
             }
         }
@@ -48,14 +55,12 @@ pipeline {
         stage('Terraform Apply') {
             steps {
                 input message: 'Approve Terraform Apply?', ok: 'Apply'
-                sh 'cd gke-tf'
                 sh 'terraform apply terraform.plan'
             }
         }
 
         stage('Clean Up') {
             steps {
-                sh 'cd gke-tf'
                 sh 'rm -f terraform.plan'
             }
         }
