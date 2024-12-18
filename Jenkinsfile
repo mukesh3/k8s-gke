@@ -70,18 +70,4 @@ pipeline {
             }}
         }
     }
-
-    post {
-        always {
-            dir('gke-tf'){
-            archiveArtifacts artifacts: '**/terraform.plan', allowEmptyArchive: true
-            cleanWs()
-        }
-        success {
-            echo 'Terraform applied successfully!'
-        }
-        failure {
-            echo 'Terraform failed to apply.'
-        }
-    }}
 }
