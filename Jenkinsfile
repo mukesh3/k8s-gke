@@ -36,28 +36,28 @@ pipeline {
 
         stage('Terraform Init') {
             steps {
-                dir(gke-tf){
+                dir('gke-tf'){
                 sh 'terraform init'
             }}
         }
 
         stage('Terraform Validate') {
             steps {
-                dir(gke-tf){
+                dir('gke-tf'){
                 sh 'terraform validate'
             }}
         }
 
         stage('Terraform Plan') {
             steps {
-                dir(gke-tf){
+                dir('gke-tf'){
                 sh 'terraform plan -out=terraform.plan'
             }}
         }
 
         stage('Terraform Apply') {
             steps {
-                dir(gke-tf){
+                dir('gke-tf'){
                 input message: 'Approve Terraform Apply?', ok: 'Apply'
                 sh 'terraform apply terraform.plan'
             }}
@@ -65,7 +65,7 @@ pipeline {
 
         stage('Clean Up') {
             steps {
-                dir(gke-tf){
+                dir('gke-tf'){
                 sh 'rm -f terraform.plan'
             }}
         }
@@ -73,7 +73,7 @@ pipeline {
 
     post {
         always {
-            dir(gke-tf){
+            dir('gke-tf'){
             archiveArtifacts artifacts: '**/terraform.plan', allowEmptyArchive: true
             cleanWs()
         }
