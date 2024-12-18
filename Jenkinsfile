@@ -28,7 +28,7 @@ pipeline {
                         // Authenticate with Google Cloud
                         sh 'gcloud auth activate-service-account --key-file=$GOOGLE_APPLICATION_CREDENTIALS'
                         // Set the project (replace 'your-project-id' with your actual project ID)
-                        sh 'gcloud config set project your-project-id'
+                        sh 'gcloud config set project skilled-drake-444315-g3'
                     }
                 }
             }
